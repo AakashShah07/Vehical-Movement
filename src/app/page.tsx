@@ -6,7 +6,6 @@ import { Play, Pause, RotateCcw, Car } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-// Dynamically import the map component to avoid SSR issues
 const MapComponent = dynamic(() => import("./component/map-compoment"), {
   ssr: false,
   loading: () => (
@@ -31,7 +30,6 @@ export default function VehicleTracker() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const startTimeRef = useRef<Date | null>(null)
 
-  // Load route data
   useEffect(() => {
     const loadRouteData = async () => {
       try {
@@ -45,9 +43,8 @@ export default function VehicleTracker() {
     loadRouteData()
   }, [])
 
-  // Calculate distance between two points using Haversine formula
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const R = 6371 // Earth's radius in kilometers
+    const R = 6371 
     const dLat = (lat2 - lat1) * (Math.PI / 180)
     const dLon = (lon2 - lon1) * (Math.PI / 180)
     const a =
@@ -57,7 +54,6 @@ export default function VehicleTracker() {
     return R * c
   }
 
-  // Calculate speed between current and previous point
   const calculateSpeed = (currentIdx: number): number => {
     if (currentIdx === 0 || !routeData[currentIdx] || !routeData[currentIdx - 1]) return 0
 
@@ -66,12 +62,11 @@ export default function VehicleTracker() {
 
     const distance = calculateDistance(previous.latitude, previous.longitude, current.latitude, current.longitude)
 
-    const timeDiff = (new Date(current.timestamp).getTime() - new Date(previous.timestamp).getTime()) / 1000 / 3600 // hours
+    const timeDiff = (new Date(current.timestamp).getTime() - new Date(previous.timestamp).getTime()) / 1000 / 3600 
 
-    return timeDiff > 0 ? distance / timeDiff : 0 // km/h
+    return timeDiff > 0 ? distance / timeDiff : 0 
   }
 
-  // Start/stop simulation
   const togglePlayback = () => {
     if (isPlaying) {
       if (intervalRef.current) {
@@ -92,11 +87,9 @@ export default function VehicleTracker() {
             return prevIndex
           }
 
-          // Calculate and update speed
           const speed = calculateSpeed(nextIndex)
           setCurrentSpeed(speed)
 
-          // Update elapsed time
           if (startTimeRef.current) {
             const elapsed = (new Date().getTime() - startTimeRef.current.getTime()) / 1000
             setElapsedTime(elapsed)
@@ -104,13 +97,12 @@ export default function VehicleTracker() {
 
           return nextIndex
         })
-      }, 1500) // Move every 1.5 seconds
+      }, 1500) 
 
       setIsPlaying(true)
     }
   }
 
-  // Reset simulation
   const resetSimulation = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
@@ -123,7 +115,6 @@ export default function VehicleTracker() {
     startTimeRef.current = null
   }
 
-  // Cleanup interval on unmount
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
